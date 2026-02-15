@@ -20,11 +20,11 @@ In dieser Phase lernst du:
 ## 📚 Voraussetzungen
 
 ### Software installiert?
-- [ ] Java 17+ (`java -version`)
-- [ ] Maven 3.6+ (`mvn -version`)
-- [ ] PostgreSQL oder Docker
-- [ ] IDE (IntelliJ IDEA oder VS Code)
-- [ ] Postman (für Testing)
+- [x] Java 17+ (`java -version`)
+- [x] Maven 3.6+ (`mvn -version`)
+- [x] PostgreSQL oder Docker
+- [x] IDE (IntelliJ IDEA oder VS Code)
+- [x] Postman (für Testing)
 
 ### Wissen (kurz auffrischen wenn nötig):
 - Java Basics (Klassen, Methoden, Getters/Setters)

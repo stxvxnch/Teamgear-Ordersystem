@@ -1,8 +1,9 @@
 package com.teamgear.order_system.controller;
 
+import com.teamgear.order_system.dto.BasisPlayerDTO;
+import com.teamgear.order_system.dto.UpdatePlayerDTO;
 import com.teamgear.order_system.model.Player;
 import com.teamgear.order_system.repository.PlayerRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,79 +13,38 @@ import java.util.List;
 @RequestMapping("/api/players")
 public class PlayerController {
 
-    private final PlayerRepository playerRepository;
+    public PlayerRepository playerRepository;
 
-    // Constructor Injection (Best Practice!)
     public PlayerController(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }
 
-    /**
-     * GET /api/players
-     * Gibt alle Spieler zurück
-     */
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<List<Player>> getAllPlayers() {
-        List<Player> players = playerRepository.findAll();
-        return ResponseEntity.ok(players);
+        return ResponseEntity.ok(playerRepository.findAll());
     }
 
-    /**
-     * GET /api/players/{id}
-     * Gibt einen spezifischen Spieler zurück
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayerById(@PathVariable Long id) {
-        return playerRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping()
+    public ResponseEntity<Player> addPlayer(@RequestBody BasisPlayerDTO dto) {
+        Player player = new Player();
+        player.setFirstName(dto.getFirstName());
+        player.setLastName(dto.getLastName());
+        player.setEmail(dto.getEmail());
+        player.setPhoneNumber(dto.getPhoneNumber());
+        return ResponseEntity.ok(player);
     }
 
-    /**
-     * POST /api/players
-     * Erstellt einen neuen Spieler
-     */
-    @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
-        // Prüfe ob Email schon existiert
-        if (playerRepository.existsByEmail(player.getEmail())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Player savedPlayer = playerRepository.save(player);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer);
-    }
-
-    /**
-     * PUT /api/players/{id}
-     * Aktualisiert einen Spieler
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<Player> updatePlayer(
-            @PathVariable Long id,
-            @RequestBody Player playerDetails) {
+    public ResponseEntity<?> updatePlayer(@PathVariable long id, @RequestBody UpdatePlayerDTO player) {
+        return playerRepository.findById(id).map(updatePlayer -> {
+            updatePlayer.setFirstName(player.getFirstName());
+            updatePlayer.setLastName(player.getLastName());
+            updatePlayer.setEmail(player.getEmail());
+            updatePlayer.setPhoneNumber(player.getPhoneNumber());
+            playerRepository.save(updatePlayer);
 
-        return playerRepository.findById(id)
-                .map(player -> {
-                    player.setFirstName(playerDetails.getFirstName());
-                    player.setLastName(playerDetails.getLastName());
-                    player.setPhoneNumber(playerDetails.getPhoneNumber());
-                    return ResponseEntity.ok(playerRepository.save(player));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
+            return ResponseEntity.ok(updatePlayer);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
 
-    /**
-     * DELETE /api/players/{id}
-     * Löscht einen Spieler
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable Long id) {
-        if (!playerRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        playerRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
