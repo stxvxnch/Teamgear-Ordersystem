@@ -1,26 +1,40 @@
 package com.teamgear.order_system.controller;
 
-import com.teamgear.order_system.dto.Product;
-import com.teamgear.order_system.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.teamgear.order_system.dto.CreateProductDTO;
+import com.teamgear.order_system.dto.ProductDTO;
+import com.teamgear.order_system.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/products")
 public class ProductController {
-    @Autowired
-    private ProductRepository productRepository;
 
-    @GetMapping
-    public List<Product> getProducts() {
-        return productRepository.findAll();
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+        return ResponseEntity.ok(productService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+        return productService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
+
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productRepository.save(product);
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody CreateProductDTO dto) {
+        ProductDTO created = productService.create(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 }
 
