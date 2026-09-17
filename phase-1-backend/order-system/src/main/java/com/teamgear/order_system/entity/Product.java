@@ -1,7 +1,6 @@
 package com.teamgear.order_system.entity;
 
 import com.teamgear.order_system.model.Category;
-import com.teamgear.order_system.model.Size;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,9 +28,4 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     private Category category;
-
-    @Enumerated(EnumType.STRING)
-    private Size size;
-
-
 }
