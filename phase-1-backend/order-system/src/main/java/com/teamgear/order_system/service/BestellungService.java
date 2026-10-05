@@ -1,10 +1,11 @@
 package com.teamgear.order_system.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.teamgear.order_system.dto.BestellPositionDTO;
 import com.teamgear.order_system.dto.BestellungDTO;
 import com.teamgear.order_system.dto.CreateBestellPositionDTO;
 import com.teamgear.order_system.dto.CreateBestellungDTO;
@@ -40,5 +41,16 @@ public class BestellungService {
 
         Bestellung saved = bestellungRepository.save(bestellung);
         return BestellungMapper.toDTO(saved);
+    }
+
+    public List<BestellungDTO> findAll() {
+        return bestellungRepository.findAll().stream()
+                .map(BestellungMapper::toDTO)
+                .toList();
+    }
+
+    public Optional<BestellungDTO> findById(Long id){
+        return bestellungRepository.findById(id)
+                .map(BestellungMapper::toDTO);
     }
 }
