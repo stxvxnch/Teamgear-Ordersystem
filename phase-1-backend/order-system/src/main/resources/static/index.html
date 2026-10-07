@@ -101,25 +101,29 @@
             <fieldset>
                 <legend>Artikel</legend>
 
-                <label for="bestellung-produkt">Produkt</label>
-                <!-- Diese Auswahl sollte per JS mit den echten
-                     Produkten aus der API befüllt werden
-                     (gleiche Daten wie in Bereich 1), damit man
-                     hier eine productId auswählen kann. -->
-                <select id="bestellung-produkt" name="productId" required>
-                    <option value="">-- Produkte zuerst laden --</option>
-                </select>
+                <div id="bestellung-positionen">
+                    <div class="bestell-position-row">
+                        <label>Produkt</label>
+                        <select class="bestellung-produkt" required>
+                            <option value="">-- Produkt wählen --</option>
+                        </select>
 
-                <label for="bestellung-menge">Menge</label>
-                <input type="number" id="bestellung-menge" name="quantity" min="1" value="1" required>
+                        <label>Menge</label>
+                        <input type="number" class="bestellung-menge" min="1" value="1" required>
 
-                <label for="bestellung-groesse">Größe</label>
-                <select id="bestellung-groesse" name="size" required>
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                </select>
+                        <label>Größe</label>
+                        <select class="bestellung-groesse" required>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                        </select>
+
+                        <button type="button" class="position-loeschen">Entfernen</button>
+                    </div>
+                </div>
+
+                <button type="button" id="position-hinzufuegen">Weitere Position hinzufügen</button>
             </fieldset>
 
             <button type="submit">Bestellung abschicken</button>
