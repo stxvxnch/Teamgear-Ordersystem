@@ -1,0 +1,190 @@
+/* ===================================================
+   Teamgear Shop — Grundgerüst
+   =================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --farbe-dunkel: #16213E;
+    --farbe-akzent: #E8572C;
+    --farbe-hintergrund: #F6F5F1;
+    --farbe-karte: #FFFFFF;
+    --farbe-rand: #DDDAD2;
+    --farbe-text: #1C1C1C;
+    --farbe-text-mild: #6B6B65;
+
+    --schrift-headline: 'Barlow Condensed', sans-serif;
+    --schrift-text: 'Inter', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--farbe-hintergrund);
+    color: var(--farbe-text);
+    font-family: var(--schrift-text);
+    line-height: 1.5;
+}
+
+header {
+    background: var(--farbe-dunkel);
+    color: #fff;
+    padding: 1.5rem 1.5rem;
+}
+
+header h1 {
+    margin: 0;
+    font-family: var(--schrift-headline);
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: 0.01em;
+}
+
+main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+h2 {
+    font-family: var(--schrift-headline);
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+    color: var(--farbe-dunkel);
+}
+
+section {
+    margin-bottom: 2.5rem;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--farbe-rand);
+    margin: 2.5rem 0;
+}
+
+/* ---------- Produktkarten ---------- */
+
+.karten-raster {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.75rem;
+}
+
+.produkt-karte {
+    background: var(--farbe-karte);
+    border: 1px solid var(--farbe-rand);
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.produkt-name {
+    margin: 0 0 0.25rem;
+    font-family: var(--schrift-headline);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.produkt-kategorie {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: var(--farbe-text-mild);
+}
+
+.produkt-preis {
+    margin: 0;
+    font-weight: 600;
+    color: var(--farbe-akzent);
+}
+
+/* ---------- Formulare ---------- */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    max-width: 420px;
+}
+
+label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: -0.5rem;
+}
+
+input,
+select {
+    font-family: var(--schrift-text);
+    font-size: 1rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--farbe-rand);
+    border-radius: 4px;
+    background: var(--farbe-karte);
+    color: var(--farbe-text);
+}
+
+input:focus,
+select:focus {
+    outline: 2px solid var(--farbe-akzent);
+    outline-offset: 1px;
+}
+
+fieldset {
+    border: 1px solid var(--farbe-rand);
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+legend {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0 0.4rem;
+}
+
+button {
+    align-self: flex-start;
+    font-family: var(--schrift-text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.4rem;
+    border: none;
+    border-radius: 4px;
+    background: var(--farbe-akzent);
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #cf4a21;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--farbe-dunkel);
+    outline-offset: 2px;
+}
+
+.status-meldung {
+    min-height: 1.2em;
+    font-size: 0.9rem;
+}
+
+.status-meldung.erfolg {
+    color: #1a7a3c;
+}
+
+.status-meldung.fehler {
+    color: #c0392b;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    button {
+        transition: background 0.15s ease;
+    }
+}

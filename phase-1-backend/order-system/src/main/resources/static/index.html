@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamgear Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Teamgear Shop</h1>
+</header>
+
+<main>
+
+    <!-- ================================
+         BEREICH 1: Produktliste
+         Hier soll später (per JS) für jedes Produkt aus der
+         Datenbank eine Karte erscheinen. Momentan steht nur
+         eine einzelne Beispiel-Karte als Vorlage da, damit du
+         siehst, wie eine Karte aussehen soll.
+         ================================ -->
+    <section id="produkte-bereich">
+        <h2>Produkte</h2>
+
+        <div id="produkt-liste" class="karten-raster">
+
+            <!-- BEISPIEL-KARTE — diese hier per JS dynamisch
+                 für jedes Produkt aus der API erzeugen,
+                 danach diese statische Beispiel-Karte entfernen -->
+            <div class="produkt-karte">
+                <h3 class="produkt-name">Trikot</h3>
+                <p class="produkt-kategorie">TSHIRT</p>
+                <p class="produkt-preis">25,00 €</p>
+            </div>
+
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- ================================
+         BEREICH 2: Neues Produkt anlegen
+         (POST /api/products)
+         ================================ -->
+    <section id="produkt-anlegen-bereich">
+        <h2>Neues Produkt anlegen</h2>
+
+        <form id="produkt-form">
+
+            <label for="produkt-name">Name</label>
+            <input type="text" id="produkt-name" name="name" required>
+
+            <label for="produkt-beschreibung">Beschreibung</label>
+            <input type="text" id="produkt-beschreibung" name="description">
+
+            <label for="produkt-preis">Preis (€)</label>
+            <input type="number" id="produkt-preis" name="price" step="0.01" min="0" required>
+
+            <label for="produkt-kategorie">Kategorie</label>
+            <select id="produkt-kategorie" name="category" required>
+                <option value="TSHIRT">TSHIRT</option>
+                <option value="HOSE">HOSE</option>
+                <option value="PULLOVER">PULLOVER</option>
+                <option value="TASCHEN">TASCHEN</option>
+            </select>
+
+            <button type="submit">Produkt anlegen</button>
+        </form>
+
+        <p id="produkt-form-status" class="status-meldung"></p>
+    </section>
+
+    <hr>
+
+    <!-- ================================
+         BEREICH 3: Bestellung aufgeben
+         (POST /api/bestellungen)
+
+         Hinweis: Eine Bestellung kann mehrere Positionen
+         haben. Hier steht erstmal nur EINE Position als
+         Formular — "mehrere Positionen gleichzeitig
+         hinzufügen" ist ein guter nächster Ausbau-Schritt,
+         wenn das hier läuft.
+         ================================ -->
+    <section id="bestellung-bereich">
+        <h2>Bestellung aufgeben</h2>
+
+        <form id="bestellung-form">
+
+            <label for="bestellung-kunde">Dein Name</label>
+            <input type="text" id="bestellung-kunde" name="customerName" required>
+
+            <label for="bestellung-zahlungsart">Zahlungsart</label>
+            <select id="bestellung-zahlungsart" name="zahlungsart" required>
+                <option value="BAR">BAR</option>
+                <option value="PAYPAL">PAYPAL</option>
+            </select>
+
+            <fieldset>
+                <legend>Artikel</legend>
+
+                <label for="bestellung-produkt">Produkt</label>
+                <!-- Diese Auswahl sollte per JS mit den echten
+                     Produkten aus der API befüllt werden
+                     (gleiche Daten wie in Bereich 1), damit man
+                     hier eine productId auswählen kann. -->
+                <select id="bestellung-produkt" name="productId" required>
+                    <option value="">-- Produkte zuerst laden --</option>
+                </select>
+
+                <label for="bestellung-menge">Menge</label>
+                <input type="number" id="bestellung-menge" name="quantity" min="1" value="1" required>
+
+                <label for="bestellung-groesse">Größe</label>
+                <select id="bestellung-groesse" name="size" required>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                </select>
+            </fieldset>
+
+            <button type="submit">Bestellung abschicken</button>
+        </form>
+
+        <p id="bestellung-form-status" class="status-meldung"></p>
+    </section>
+
+</main>
+
+<!-- Hier kommt dein JavaScript rein -->
+<script src="app.js"></script>
+</body>
+</html>
