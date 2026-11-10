@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teamgear Bestellungen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Wie admin.html: nicht im Shop verlinkt, später per Spring Security absichern -->
+<header class="topbar">
+  <div class="logo">📋 Teamgear Bestellungen</div>
+  <nav class="nav">
+    <a class="btn" href="admin.html">Produkte</a>
+    <a class="btn" href="index.html">← Zum Shop</a>
+  </nav>
+</header>
+
+<main class="orders-page">
+
+  <!-- Zusammenfassung: Anzahl und Beträge, die app füllt bestellungen.js -->
+  <section class="summary" id="zusammenfassung"></section>
+
+  <!-- Statusfilter: Alle / Offen / Bezahlt -->
+  <div class="chips" id="filter-bar"></div>
+
+  <!-- Tabelle in einem Wrapper, damit sie auf dem Handy seitlich scrollen kann -->
+  <div class="table-wrap">
+    <table class="orders-table">
+      <thead>
+      <tr>
+        <th>Nr.</th>
+        <th>Datum</th>
+        <th>Name</th>
+        <th>Artikel</th>
+        <th>Summe</th>
+        <th>Zahlung</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody id="bestellungen-liste"></tbody>
+    </table>
+  </div>
+
+  <p class="muted" id="keine-bestellungen" hidden>Keine Bestellungen vorhanden.</p>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="bestellungen.js"></script>
+</body>
+</html>

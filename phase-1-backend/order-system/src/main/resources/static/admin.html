@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teamgear Admin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!--
+  Eigene Admin-Seite: erreichbar unter /admin.html, im Shop NICHT verlinkt.
+  Später sicherst du genau diese Seite (und die schreibenden API-Aufrufe) mit Spring Security ab.
+-->
+<header class="topbar">
+    <div class="logo">⚙️ Teamgear Admin</div>
+    <nav class="nav">
+        <a class="btn" href="bestellungen.html">Bestellungen</a>
+        <a class="btn" href="index.html">← Zum Shop</a>
+    </nav>
+</header>
+
+<main class="admin-page">
+
+    <section class="panel">
+        <h2>Neues Produkt anlegen</h2>
+
+        <form id="produkt-form" class="form-grid">
+            <div>
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+            </div>
+            <div>
+                <label for="preis">Preis (€)</label>
+                <input type="number" id="preis" step="0.01" min="0" required>
+            </div>
+            <div>
+                <label for="kategorie">Kategorie</label>
+                <select id="kategorie">
+                    <option value="TSHIRT">TSHIRT</option>
+                    <option value="HOSE">HOSE</option>
+                    <option value="PULLOVER">PULLOVER</option>
+                    <option value="TASCHEN">TASCHEN</option>
+                </select>
+            </div>
+            <div>
+                <label for="beschreibung">Beschreibung</label>
+                <input type="text" id="beschreibung">
+            </div>
+            <button type="submit" class="btn primary">Produkt anlegen</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Vorhandene Produkte</h2>
+        <ul class="cart-list" id="produkt-liste"></ul>
+    </section>
+
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="admin.js"></script>
+</body>
+</html>

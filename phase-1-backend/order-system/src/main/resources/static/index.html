@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teamgear Shop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== Kopfzeile ===== -->
+<header class="topbar">
+  <div class="logo">⚽ Teamgear</div>
+  <button class="btn" id="cart-button">
+    🛒 Warenkorb <span class="count" id="cart-count" hidden>0</span>
+  </button>
+</header>
+
+<!-- ===== Hero-Bereich ===== -->
+<section class="hero">
+  <h1>Dein Teamoutfit</h1>
+  <p>Trainingskleidung für die ganze Mannschaft – einfach bestellen.</p>
+</section>
+
+<main>
+  <!-- Kategorie-Filter: die Buttons erzeugt app.js -->
+  <div class="chips" id="filter-bar"></div>
+
+  <!-- Produktraster: die Karten erzeugt app.js -->
+  <div class="grid" id="produkt-liste"></div>
+  <p class="muted" id="keine-produkte" hidden>Keine Produkte vorhanden.</p>
+</main>
+
+<!-- ===== Warenkorb (Seitenleiste) ===== -->
+<div class="overlay" id="overlay" hidden></div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2>Warenkorb</h2>
+    <button class="icon-btn" id="cart-close" aria-label="Schließen">✕</button>
+  </div>
+
+  <p class="muted" id="cart-empty">Dein Warenkorb ist leer.</p>
+
+  <!-- Das Formular ist versteckt, solange der Warenkorb leer ist -->
+  <form id="checkout-form" hidden>
+    <ul class="cart-list" id="cart-list"></ul>
+
+    <p class="total">Gesamt: <strong id="cart-total"></strong></p>
+
+    <label for="kunde">Dein Name</label>
+    <input type="text" id="kunde" required>
+
+    <label for="zahlungsart">Zahlungsart</label>
+    <select id="zahlungsart">
+      <option value="BAR">BAR</option>
+      <option value="PAYPAL">PAYPAL</option>
+    </select>
+
+    <button type="submit" class="btn primary full">Bestellung abschicken</button>
+  </form>
+</aside>
+
+<!-- Meldung unten rechts -->
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
