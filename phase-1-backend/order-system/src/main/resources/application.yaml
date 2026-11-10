@@ -22,3 +22,6 @@ logging:
     com.teamgear: debug
     org.hibernate.sql: debug
 
+springdoc:
+  api-docs:
+    version: openapi_3_0

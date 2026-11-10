@@ -10,6 +10,7 @@ public class ProductMapper {
         return new ProductDTO(
                 product.getId(),
                 product.getName(),
+                product.getDescription(),
                 product.getPrice(),
                 product.getCategory()
         );
@@ -19,7 +20,7 @@ public class ProductMapper {
         return new Product(
                 null,
                 dto.name(),
-                null,
+                dto.description(),
                 dto.price(),
                 dto.category()
         );

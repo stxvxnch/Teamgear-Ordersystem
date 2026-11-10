@@ -3,11 +3,13 @@ package com.teamgear.order_system.controller;
 import com.teamgear.order_system.dto.CreateProductDTO;
 import com.teamgear.order_system.dto.ProductDTO;
 import com.teamgear.order_system.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -29,12 +31,21 @@ public class ProductController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-    
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody CreateProductDTO dto) {
+    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody CreateProductDTO dto) {
         ProductDTO created = productService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
-}
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody CreateProductDTO dto) {
+        return ResponseEntity.ok(productService.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}

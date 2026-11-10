@@ -3,6 +3,7 @@ package com.teamgear.order_system.service;
 import com.teamgear.order_system.dto.CreateProductDTO;
 import com.teamgear.order_system.dto.ProductDTO;
 import com.teamgear.order_system.entity.Product;
+import com.teamgear.order_system.exception.NotFoundException;
 import com.teamgear.order_system.mapper.ProductMapper;
 import com.teamgear.order_system.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -33,5 +34,22 @@ public class ProductService {
         Product product = ProductMapper.toEntity(dto);
         Product saved = productRepository.save(product);
         return ProductMapper.toDTO(saved);
+    }
+
+    public ProductDTO update(Long id, CreateProductDTO dto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Produkt " + id + " nicht gefunden."));
+        product.setName(dto.name());
+        product.setDescription(dto.description());
+        product.setPrice(dto.price());
+        product.setCategory(dto.category());
+        return ProductMapper.toDTO(productRepository.save(product));
+    }
+
+    public void delete(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new NotFoundException("Produkt " + id + " nicht gefunden.");
+        }
+        productRepository.deleteById(id);
     }
 }

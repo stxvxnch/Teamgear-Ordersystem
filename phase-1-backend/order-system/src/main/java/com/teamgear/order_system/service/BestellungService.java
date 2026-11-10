@@ -11,6 +11,7 @@ import com.teamgear.order_system.dto.CreateBestellPositionDTO;
 import com.teamgear.order_system.dto.CreateBestellungDTO;
 import com.teamgear.order_system.entity.BestellPosition;
 import com.teamgear.order_system.entity.Bestellung;
+import com.teamgear.order_system.exception.NotFoundException;
 import com.teamgear.order_system.mapper.BestellungMapper;
 import com.teamgear.order_system.model.BestellStatus;
 import com.teamgear.order_system.repository.BestellungRepository;
@@ -34,10 +35,11 @@ public class BestellungService {
         bestellung.setStatus(BestellStatus.OFFEN);
 
         for(CreateBestellPositionDTO inputDTO : dto.bestellPositionen()){
-            var product = productRepository.findById(inputDTO.productId()).orElseThrow(() -> new RuntimeException("Product not found"));
+            var product = productRepository.findById(inputDTO.productId())
+                    .orElseThrow(() -> new NotFoundException("Produkt " + inputDTO.productId() + " nicht gefunden."));
             BestellPosition bestellPosition = new BestellPosition(null, bestellung, product, inputDTO.quantity(), inputDTO.size());
             bestellung.getBestellPositionen().add(bestellPosition);
-        }  
+        }
 
         Bestellung saved = bestellungRepository.save(bestellung);
         return BestellungMapper.toDTO(saved);
@@ -52,5 +54,12 @@ public class BestellungService {
     public Optional<BestellungDTO> findById(Long id){
         return bestellungRepository.findById(id)
                 .map(BestellungMapper::toDTO);
+    }
+
+    public BestellungDTO updateStatus(Long id, BestellStatus status) {
+        Bestellung bestellung = bestellungRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Bestellung " + id + " nicht gefunden."));
+        bestellung.setStatus(status);
+        return BestellungMapper.toDTO(bestellungRepository.save(bestellung));
     }
 }
