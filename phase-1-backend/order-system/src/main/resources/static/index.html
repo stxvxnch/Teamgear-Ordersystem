@@ -1,140 +1,69 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teamgear Shop</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teamgear Shop</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <h1>Teamgear Shop</h1>
+<!-- ===== Kopfzeile ===== -->
+<header class="topbar">
+  <div class="logo">⚽ Teamgear</div>
+  <button class="btn" id="cart-button">
+    🛒 Warenkorb <span class="count" id="cart-count" hidden>0</span>
+  </button>
 </header>
 
+<!-- ===== Hero-Bereich ===== -->
+<section class="hero">
+  <h1>Dein Teamoutfit</h1>
+  <p>Trainingskleidung für die ganze Mannschaft – einfach bestellen.</p>
+</section>
+
 <main>
+  <!-- Kategorie-Filter: die Buttons erzeugt app.js -->
+  <div class="chips" id="filter-bar"></div>
 
-    <!-- ================================
-         BEREICH 1: Produktliste
-         Hier soll später (per JS) für jedes Produkt aus der
-         Datenbank eine Karte erscheinen. Momentan steht nur
-         eine einzelne Beispiel-Karte als Vorlage da, damit du
-         siehst, wie eine Karte aussehen soll.
-         ================================ -->
-    <section id="produkte-bereich">
-        <h2>Produkte</h2>
-
-        <div id="produkt-liste" class="karten-raster">
-
-            <!-- BEISPIEL-KARTE — diese hier per JS dynamisch
-                 für jedes Produkt aus der API erzeugen,
-                 danach diese statische Beispiel-Karte entfernen -->
-            <div class="produkt-karte">
-                <h3 class="produkt-name">Trikot</h3>
-                <p class="produkt-kategorie">TSHIRT</p>
-                <p class="produkt-preis">25,00 €</p>
-            </div>
-
-        </div>
-    </section>
-
-    <hr>
-
-    <!-- ================================
-         BEREICH 2: Neues Produkt anlegen
-         (POST /api/products)
-         ================================ -->
-    <section id="produkt-anlegen-bereich">
-        <h2>Neues Produkt anlegen</h2>
-
-        <form id="produkt-form">
-
-            <label for="produkt-name">Name</label>
-            <input type="text" id="produkt-name" name="name" required>
-
-            <label for="produkt-beschreibung">Beschreibung</label>
-            <input type="text" id="produkt-beschreibung" name="description">
-
-            <label for="produkt-preis">Preis (€)</label>
-            <input type="number" id="produkt-preis" name="price" step="0.01" min="0" required>
-
-            <label for="produkt-kategorie">Kategorie</label>
-            <select id="produkt-kategorie" name="category" required>
-                <option value="TSHIRT">TSHIRT</option>
-                <option value="HOSE">HOSE</option>
-                <option value="PULLOVER">PULLOVER</option>
-                <option value="TASCHEN">TASCHEN</option>
-            </select>
-
-            <button type="submit">Produkt anlegen</button>
-        </form>
-
-        <p id="produkt-form-status" class="status-meldung"></p>
-    </section>
-
-    <hr>
-
-    <!-- ================================
-         BEREICH 3: Bestellung aufgeben
-         (POST /api/bestellungen)
-
-         Hinweis: Eine Bestellung kann mehrere Positionen
-         haben. Hier steht erstmal nur EINE Position als
-         Formular — "mehrere Positionen gleichzeitig
-         hinzufügen" ist ein guter nächster Ausbau-Schritt,
-         wenn das hier läuft.
-         ================================ -->
-    <section id="bestellung-bereich">
-        <h2>Bestellung aufgeben</h2>
-
-        <form id="bestellung-form">
-
-            <label for="bestellung-kunde">Dein Name</label>
-            <input type="text" id="bestellung-kunde" name="customerName" required>
-
-            <label for="bestellung-zahlungsart">Zahlungsart</label>
-            <select id="bestellung-zahlungsart" name="zahlungsart" required>
-                <option value="BAR">BAR</option>
-                <option value="PAYPAL">PAYPAL</option>
-            </select>
-
-            <fieldset>
-                <legend>Artikel</legend>
-
-                <div id="bestellung-positionen">
-                    <div class="bestell-position-row">
-                        <label>Produkt</label>
-                        <select class="bestellung-produkt" required>
-                            <option value="">-- Produkt wählen --</option>
-                        </select>
-
-                        <label>Menge</label>
-                        <input type="number" class="bestellung-menge" min="1" value="1" required>
-
-                        <label>Größe</label>
-                        <select class="bestellung-groesse" required>
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                        </select>
-
-                        <button type="button" class="position-loeschen">Entfernen</button>
-                    </div>
-                </div>
-
-                <button type="button" id="position-hinzufuegen">Weitere Position hinzufügen</button>
-            </fieldset>
-
-            <button type="submit">Bestellung abschicken</button>
-        </form>
-
-        <p id="bestellung-form-status" class="status-meldung"></p>
-    </section>
-
+  <!-- Produktraster: die Karten erzeugt app.js -->
+  <div class="grid" id="produkt-liste"></div>
+  <p class="muted" id="keine-produkte" hidden>Keine Produkte vorhanden.</p>
 </main>
 
-<!-- Hier kommt dein JavaScript rein -->
+<!-- ===== Warenkorb (Seitenleiste) ===== -->
+<div class="overlay" id="overlay" hidden></div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2>Warenkorb</h2>
+    <button class="icon-btn" id="cart-close" aria-label="Schließen">✕</button>
+  </div>
+
+  <p class="muted" id="cart-empty">Dein Warenkorb ist leer.</p>
+
+  <!-- Das Formular ist versteckt, solange der Warenkorb leer ist -->
+  <form id="checkout-form" hidden>
+    <ul class="cart-list" id="cart-list"></ul>
+
+    <p class="total">Gesamt: <strong id="cart-total"></strong></p>
+
+    <label for="kunde">Dein Name</label>
+    <input type="text" id="kunde" required>
+
+    <label for="zahlungsart">Zahlungsart</label>
+    <select id="zahlungsart">
+      <option value="BAR">BAR</option>
+      <option value="PAYPAL">PAYPAL</option>
+    </select>
+
+    <button type="submit" class="btn primary full">Bestellung abschicken</button>
+  </form>
+</aside>
+
+<!-- Meldung unten rechts -->
+<div class="toast" id="toast" hidden></div>
+
 <script src="app.js"></script>
 </body>
 </html>

@@ -1,228 +1,227 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const productList = document.getElementById("produkt-liste");
-    const productForm = document.getElementById("produkt-form");
-    const productStatus = document.getElementById("produkt-form-status");
-    const orderForm = document.getElementById("bestellung-form");
-    const orderStatus = document.getElementById("bestellung-form-status");
-    const orderPositionsContainer = document.getElementById("bestellung-positionen");
-    const addPositionButton = document.getElementById("position-hinzufuegen");
+// =====================================================================
+// Teamgear Shop – reines JavaScript, kein Framework
+// Ablauf: Daten laden -> in Variablen merken -> mit render...() anzeigen.
+// Ändert sich etwas (z. B. Warenkorb), rufen wir die passende render-Funktion neu auf.
+// =====================================================================
 
-    let products = [];
+// ---------- Konstanten (müssen so heißen wie die Enums im Backend) ----------
+const SIZES = ["S", "M", "L", "XL"];
+const CATEGORIES = ["TSHIRT", "HOSE", "PULLOVER", "TASCHEN"];
+const CATEGORY_EMOJI = { TSHIRT: "👕", HOSE: "🩳", PULLOVER: "🧥", TASCHEN: "🎒" };
 
-    const setStatus = (element, message, isError = false) => {
-        element.textContent = message;
-        element.style.color = isError ? "#b00020" : "#1f7a1f";
-    };
+// ---------- Zustand: das "Gedächtnis" der Seite ----------
+let products = [];   // alle Produkte vom Backend
+let filter = "ALLE"; // aktuell gewählte Kategorie
+let cart = [];       // Artikel im Warenkorb: { productId, name, price, size, quantity }
 
-    const formatPrice = (value) => Number(value).toFixed(2).replace(".", ",") + " €";
+// ---------- Elemente der Seite einmal suchen und merken ----------
+const filterBar = document.getElementById("filter-bar");
+const productList = document.getElementById("produkt-liste");
+const noProducts = document.getElementById("keine-produkte");
+const cartButton = document.getElementById("cart-button");
+const cartCount = document.getElementById("cart-count");
+const cartClose = document.getElementById("cart-close");
+const cartEmpty = document.getElementById("cart-empty");
+const cartList = document.getElementById("cart-list");
+const cartTotal = document.getElementById("cart-total");
+const checkoutForm = document.getElementById("checkout-form");
+const drawer = document.getElementById("drawer");
+const overlay = document.getElementById("overlay");
+const toast = document.getElementById("toast");
 
-    const renderProductCards = (produkte) => {
-        productList.innerHTML = "";
+// ---------- Kleine Helfer ----------
 
-        if (!produkte || produkte.length === 0) {
-            productList.innerHTML = "<p>Keine Produkte vorhanden.</p>";
-            return;
-        }
+// 25 -> "25,00 €"
+const formatPrice = (value) => Number(value).toFixed(2).replace(".", ",") + " €";
 
-        produkte.forEach(produkt => {
-            productList.innerHTML += `
-                <div class="produkt-karte">
-                    <h3 class="produkt-name">${produkt.name}</h3>
-                    <p class="produkt-kategorie">${produkt.category}</p>
-                    <p class="produkt-preis">${formatPrice(produkt.price)}</p>
-                </div>
-            `;
-        });
-    };
+// Erzeugt ein HTML-Element. Wir nutzen textContent statt innerHTML:
+// So kann ein Produktname mit "<script>" keinen Schaden anrichten.
+function el(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+}
 
-    const populateOrderProductOptions = () => {
-        const selects = document.querySelectorAll(".bestellung-produkt");
+// Meldung unten rechts anzeigen und nach 4 Sekunden wieder ausblenden
+let toastTimer;
+function showToast(text, isError = false) {
+    toast.textContent = text;
+    toast.className = "toast" + (isError ? " error" : "");
+    toast.hidden = false;
+    clearTimeout(toastTimer); // alten Timer abbrechen, falls noch einer läuft
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 4000);
+}
 
-        selects.forEach((select) => {
-            const selectedValue = select.value;
-            select.innerHTML = '<option value="">-- Produkt wählen --</option>' + products
-                .map(produkt => `<option value="${produkt.id}">${produkt.name} (${produkt.category})</option>`)
-                .join("");
-
-            if (selectedValue) {
-                select.value = selectedValue;
-            }
-        });
-    };
-
-    const createOrderPositionRow = () => {
-        const row = document.createElement("div");
-        row.className = "bestell-position-row";
-        row.innerHTML = `
-            <label>Produkt</label>
-            <select class="bestellung-produkt" required>
-                <option value="">-- Produkt wählen --</option>
-                ${products.map(produkt => `<option value="${produkt.id}">${produkt.name} (${produkt.category})</option>`).join("")}
-            </select>
-
-            <label>Menge</label>
-            <input type="number" class="bestellung-menge" min="1" value="1" required>
-
-            <label>Größe</label>
-            <select class="bestellung-groesse" required>
-                <option value="S">S</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
-                <option value="XL">XL</option>
-            </select>
-
-            <button type="button" class="position-loeschen">Entfernen</button>
-        `;
-
-        const removeButton = row.querySelector(".position-loeschen");
-        removeButton.addEventListener("click", () => {
-            const rows = orderPositionsContainer.querySelectorAll(".bestell-position-row");
-            if (rows.length === 1) {
-                setStatus(orderStatus, "Es muss mindestens eine Position vorhanden sein.", true);
-                return;
-            }
-            row.remove();
-        });
-
-        orderPositionsContainer.appendChild(row);
-    };
-
-    const refreshProducts = () => {
-        return fetch("/api/products")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Produkte konnten nicht geladen werden.");
-                }
-                return response.json();
-            })
-            .then(produkte => {
-                products = produkte;
-                renderProductCards(produkte);
-                populateOrderProductOptions();
-            })
-            .catch(error => {
-                setStatus(productStatus, error.message, true);
-            });
-    };
-
-    productForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const formData = new FormData(productForm);
-        const payload = {
-            name: String(formData.get("name") || "").trim(),
-            description: String(formData.get("description") || "").trim() || null,
-            price: Number(formData.get("price")),
-            category: formData.get("category")
-        };
-
-        if (!payload.name) {
-            setStatus(productStatus, "Bitte gib einen Produktnamen ein.", true);
-            return;
-        }
-
-        if (!payload.category) {
-            setStatus(productStatus, "Bitte wähle eine Kategorie aus.", true);
-            return;
-        }
-
-        if (Number.isNaN(payload.price) || payload.price < 0) {
-            setStatus(productStatus, "Bitte gib einen gültigen Preis ein.", true);
-            return;
-        }
-
-        setStatus(productStatus, "Produkt wird angelegt...");
-
-        fetch("/api/products", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
+// ---------- Produkte laden (GET /api/products) ----------
+function loadProducts() {
+    return fetch("/api/products")
+        .then((response) => {
+            if (!response.ok) throw new Error("Produkte konnten nicht geladen werden.");
+            return response.json();
         })
-            .then(async response => {
-                const data = await response.json().catch(() => null);
-
-                if (!response.ok) {
-                    throw new Error(data?.message || "Produkt konnte nicht angelegt werden.");
-                }
-
-                setStatus(productStatus, `Produkt "${data.name}" wurde erfolgreich angelegt.`);
-                productForm.reset();
-                return refreshProducts();
-            })
-            .catch(error => {
-                setStatus(productStatus, error.message, true);
-            });
-    });
-
-    addPositionButton.addEventListener("click", () => createOrderPositionRow());
-
-    orderForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const rows = [...orderPositionsContainer.querySelectorAll(".bestell-position-row")];
-        const bestellPositionen = rows.map(row => {
-            const productSelect = row.querySelector(".bestellung-produkt");
-            const quantityInput = row.querySelector(".bestellung-menge");
-            const sizeSelect = row.querySelector(".bestellung-groesse");
-
-            return {
-                productId: Number(productSelect.value),
-                quantity: Number(quantityInput.value),
-                size: sizeSelect.value
-            };
-        });
-
-        const customerName = orderForm.querySelector("#bestellung-kunde").value.trim();
-        const zahlungsart = orderForm.querySelector("#bestellung-zahlungsart").value;
-
-        if (!customerName) {
-            setStatus(orderStatus, "Bitte gib deinen Namen ein.", true);
-            return;
-        }
-
-        if (!bestellPositionen.length || bestellPositionen.some(position => !position.productId || position.quantity < 1 || !position.size)) {
-            setStatus(orderStatus, "Bitte fülle alle Positionen vollständig aus.", true);
-            return;
-        }
-
-        setStatus(orderStatus, "Bestellung wird aufgegeben...");
-
-        fetch("/api/bestellungen", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                customerName,
-                zahlungsart,
-                bestellPositionen
-            })
+        .then((data) => {
+            products = data;
+            renderProducts();
         })
-            .then(async response => {
-                const data = await response.json().catch(() => null);
+        .catch((error) => showToast(error.message, true));
+}
 
-                if (!response.ok) {
-                    throw new Error(data?.message || "Bestellung konnte nicht erstellt werden.");
-                }
+// ---------- Kategorie-Filter anzeigen ----------
+function renderFilters() {
+    filterBar.innerHTML = ""; // erst leeren, dann neu aufbauen
+    ["ALLE", ...CATEGORIES].forEach((category) => {
+        const button = el("button", "chip" + (filter === category ? " active" : ""), category);
+        button.addEventListener("click", () => {
+            filter = category;
+            renderFilters();
+            renderProducts();
+        });
+        filterBar.appendChild(button);
+    });
+}
 
-                setStatus(orderStatus, `Bestellung für ${data.customerName} wurde erfolgreich angelegt.`);
-                orderForm.reset();
-                orderPositionsContainer.innerHTML = "";
-                createOrderPositionRow();
-                return refreshProducts();
-            })
-            .catch(error => {
-                setStatus(orderStatus, error.message, true);
-            });
+// ---------- Produktkarten anzeigen ----------
+function renderProducts() {
+    productList.innerHTML = "";
+
+    // Nur Produkte der gewählten Kategorie behalten
+    const visible = filter === "ALLE" ? products : products.filter((p) => p.category === filter);
+    noProducts.hidden = visible.length > 0;
+
+    visible.forEach((product) => {
+        const card = el("article", "card");
+        card.appendChild(el("div", "card-image", CATEGORY_EMOJI[product.category] || "🛍️"));
+
+        const body = el("div", "card-body");
+        body.appendChild(el("span", "badge", product.category));
+        body.appendChild(el("h3", "", product.name));
+        if (product.description) body.appendChild(el("p", "muted", product.description));
+        body.appendChild(el("p", "price", formatPrice(product.price)));
+
+        // Größenauswahl + Button
+        const actions = el("div", "card-actions");
+        const sizeSelect = document.createElement("select");
+        SIZES.forEach((size) => {
+            const option = el("option", "", size);
+            option.value = size;
+            sizeSelect.appendChild(option);
+        });
+        sizeSelect.value = "M";
+
+        const addButton = el("button", "btn primary", "In den Warenkorb");
+        addButton.addEventListener("click", () => addToCart(product, sizeSelect.value));
+
+        actions.appendChild(sizeSelect);
+        actions.appendChild(addButton);
+        body.appendChild(actions);
+
+        card.appendChild(body);
+        productList.appendChild(card);
+    });
+}
+
+// ---------- Warenkorb ----------
+
+// Artikel hinzufügen. Gibt es Produkt+Größe schon, erhöhen wir nur die Menge.
+function addToCart(product, size) {
+    const existing = cart.find((item) => item.productId === product.id && item.size === size);
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({ productId: product.id, name: product.name, price: product.price, size, quantity: 1 });
+    }
+    renderCart();
+    showToast(`${product.name} (${size}) im Warenkorb`);
+}
+
+// Menge ändern (+1 / -1). Bei 0 fliegt der Artikel raus.
+function changeQuantity(item, delta) {
+    item.quantity += delta;
+    cart = cart.filter((entry) => entry.quantity > 0);
+    renderCart();
+}
+
+// Warenkorb neu zeichnen
+function renderCart() {
+    cartList.innerHTML = "";
+
+    cart.forEach((item) => {
+        const row = el("li");
+
+        const info = el("div");
+        info.appendChild(el("strong", "", item.name));
+        info.appendChild(el("div", "muted", `Größe ${item.size} · ${formatPrice(item.price)}`));
+
+        const qty = el("div", "qty");
+        const minus = el("button", "", "−");
+        const plus = el("button", "", "+");
+        minus.type = "button"; // "button" statt "submit", sonst würde das Formular abgeschickt
+        plus.type = "button";
+        minus.addEventListener("click", () => changeQuantity(item, -1));
+        plus.addEventListener("click", () => changeQuantity(item, +1));
+        qty.append(minus, el("span", "", String(item.quantity)), plus);
+
+        row.append(info, qty);
+        cartList.appendChild(row);
     });
 
-    refreshProducts().then(() => {
-        const existingRows = orderPositionsContainer.querySelectorAll(".bestell-position-row");
-        if (existingRows.length === 0) {
-            createOrderPositionRow();
-        }
-    });
+    // Summe und Stückzahl berechnen
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    cartTotal.textContent = formatPrice(total);
+    cartCount.textContent = count;
+    cartCount.hidden = count === 0;
+
+    // Bei leerem Warenkorb den Hinweis zeigen, sonst das Bestellformular
+    cartEmpty.hidden = cart.length > 0;
+    checkoutForm.hidden = cart.length === 0;
+}
+
+// Seitenleiste öffnen/schließen
+function openCart() { drawer.classList.add("open"); overlay.hidden = false; }
+function closeCart() { drawer.classList.remove("open"); overlay.hidden = true; }
+
+cartButton.addEventListener("click", openCart);
+cartClose.addEventListener("click", closeCart);
+overlay.addEventListener("click", closeCart);
+
+// ---------- Bestellung abschicken (POST /api/bestellungen) ----------
+checkoutForm.addEventListener("submit", (event) => {
+    event.preventDefault(); // verhindert das Neuladen der Seite
+
+    const body = {
+        customerName: document.getElementById("kunde").value.trim(),
+        zahlungsart: document.getElementById("zahlungsart").value,
+        // Aus jedem Warenkorb-Artikel wird eine Bestellposition fürs Backend
+        bestellPositionen: cart.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            size: item.size,
+        })),
+    };
+
+    fetch("/api/bestellungen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    })
+        .then(async (response) => {
+            const data = await response.json().catch(() => null);
+            // Unser GlobalExceptionHandler liefert Fehler als { "message": "..." }
+            if (!response.ok) throw new Error(data?.message || "Bestellung fehlgeschlagen.");
+
+            cart = [];
+            checkoutForm.reset();
+            renderCart();
+            closeCart();
+            showToast(`Danke ${data.customerName}, deine Bestellung ist eingegangen!`);
+        })
+        .catch((error) => showToast(error.message, true));
 });
 
+// ---------- Start ----------
+renderFilters();
+renderCart();
+loadProducts();
